@@ -10,3 +10,22 @@
 
 // console.log('hello world');
 
+
+
+
+
+// My ruby solution:
+// i = 0
+// a = (1..100).to_a.shuffle
+// count = a.length - 1
+
+// until count == 0
+//   while i < count
+//     if a[i] > a[i+1]
+//       a[i], a[i+1] = a[i+1], a[i]
+//     end
+//     i = i + 1
+//   end
+//   i = 0
+//   count = count - 1
+// end
