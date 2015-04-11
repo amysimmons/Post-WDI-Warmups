@@ -19,6 +19,7 @@ until count == 0
     end
     i = i + 1
   end
+  i = 0
   count = count - 1
 end
 
