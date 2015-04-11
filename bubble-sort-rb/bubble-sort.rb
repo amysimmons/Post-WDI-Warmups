@@ -22,7 +22,3 @@ until count == 0
   i = 0
   count = count - 1
 end
-
-
-
-
