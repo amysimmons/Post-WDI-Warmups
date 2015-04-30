@@ -12,4 +12,10 @@ body {
   height: 30px;
   display: inline-block;
   vertical-align: top;
+  color: #fff;
+
+}
+
+.hidden {
+  background-color: #fff;
 }
