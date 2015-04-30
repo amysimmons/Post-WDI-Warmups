@@ -6,6 +6,7 @@ $(document).ready(function(){
       $('<h1></h1>').text('Minesweeper').appendTo('body');
     },
 
+    // render size selection form
     renderForm: function(){
       
       var sizes = ["S", "M", "L"]
@@ -22,6 +23,7 @@ $(document).ready(function(){
 
     },
 
+    // determine size of board
     sizeOfBoard: function(){
 
       var sizeChoice = $('input:checked').val();
@@ -43,7 +45,7 @@ $(document).ready(function(){
 
     },
 
-    // draws the board
+    // draw the board
     renderGame: function(width, length){
 
       $('.game-dimensions-form').remove();
@@ -53,16 +55,25 @@ $(document).ready(function(){
         $('<div>').addClass('row').appendTo('.board');
       });
 
+      var dataID = 0;
       _.each($('.row'), function(row){
         _(width).times(function(){
-          $('<div>').addClass('square').appendTo(row);
+          dataID += 1;
+          $('<div>').addClass('square').attr('data-id', dataID).appendTo(row);
         });
       });
     
+    Minesweeper.placeMines();
+
     },
 
-    // randomly places the mines
+    // randomly place the mines
     placeMines: function(){
+
+      var mines = _.shuffle($('.square')).slice(0,10);
+      _.each(mines, function(mine){
+        $(mine).addClass('mine').html('<i class="fa fa-flag"></i>');
+      });
 
     },
 
