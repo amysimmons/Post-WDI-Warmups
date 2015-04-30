@@ -10,6 +10,11 @@
 
 // console.log('hello world');
 
+
+// It's pretty easy to make an array with random numbers between 1 and 100
+// for(i=0;i<100;i++) { array.push(Math.floor(Math.random() * (100 - 1)) + 1); }
+
+
 var i = 0
 var a = [10, 5, 4, 3, 9, 8, 7, 1 , 2, 6];
 var count = a.length - 1

@@ -1,0 +1,14 @@
+body {
+  background-color: yellow;
+}
+
+.row{
+  display: block;
+}
+
+.square {
+  border: 1px solid #fff;
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+}
