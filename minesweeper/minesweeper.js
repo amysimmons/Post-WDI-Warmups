@@ -25,21 +25,21 @@ Minesweeper = {
   sizeOfBoard: function(){
 
     var sizeChoice = $('input:checked').val();
-    var width;
+    Minesweeper.width;
     var length;
 
     if (sizeChoice === "S"){
-      width = 9;
+      Minesweeper.width = 9;
       length = 9;
     }else if (sizeChoice === "M"){
-      width = 12;
+      Minesweeper.width = 12;
       length = 12;
     }else if (sizeChoice === "L") {
-      width = 15;
+      Minesweeper.width = 15;
       length = 15;
     }
    
-    Minesweeper.renderGame(width, length);
+    Minesweeper.renderGame(Minesweeper.width, length);
 
   },
 
@@ -55,7 +55,7 @@ Minesweeper = {
 
     var dataID = 0;
     _.each($('.row'), function(row){
-      _(width).times(function(){
+      _(Minesweeper.width).times(function(){
         dataID += 1;
         $('<div>').addClass('square').attr('data-id', dataID).appendTo(row);
       });
@@ -81,11 +81,49 @@ Minesweeper = {
   },
 
   // checks is player clicked on normal square, a mine, or placed a flag
-  checkPlayerGuess: function(){
+  checkGuess: function(guess){
+
+    if ($(guess).hasClass('mine')){
+       Minesweeper.gameOver();  
+    }else {
+      Minesweeper.calcNumber(guess);
+    }
+
+  },
+
+  calcNumber: function(guess, width){
+
+    var indexSelectedDiv = _.indexOf($('.square'), guess);
+
+    var algorithm = [1, Minesweeper.width - 1, Minesweeper.width, Minesweeper.width + 1];
+
+    var indexSurroundingDivs = [];
+
+    for (var i = 0; i < algorithm.length; i++) {
+      var index = algorithm[i];
+      indexSurroundingDivs.push(indexSelectedDiv + index);
+      indexSurroundingDivs.push(indexSelectedDiv - index);
+    };
+
+    var count = 0;
+
+    for (var i = 0; i < indexSurroundingDivs.length; i++) {
+      var index = indexSurroundingDivs[i];
+      var div = $('.square')[index];
+      if ($(div).hasClass('mine')){
+        count += 1;
+      }
+    };
+
+    count;
+    console.log(count);
+
+    Minesweeper.showNumber();
 
   },
 
   showNumber: function(){
+
 
   },
 
@@ -116,8 +154,9 @@ $(document).ready(function(){
   Minesweeper.renderForm();
 
   $('submit').on('click', Minesweeper.sizeOfBoard);
-  $('body').on('click', '.mine', function(){
-    Minesweeper.gameOver();
+  $('body').on('click', '.square', function(event){
+    var guess = event.currentTarget;
+    Minesweeper.checkGuess(guess);
   });
 
 });
