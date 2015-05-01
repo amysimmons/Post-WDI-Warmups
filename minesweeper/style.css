@@ -1,5 +1,5 @@
 body {
-  background-color: yellow;
+  font-family: 'arial';
 }
 
 .row{
@@ -7,15 +7,19 @@ body {
 }
 
 .square {
-  border: 1px solid #fff;
+  border: 1px solid lightgrey;
   width: 30px;
   height: 30px;
   display: inline-block;
   vertical-align: top;
-  color: #fff;
+  text-align: center;
+}
 
+.num {
+  font-size: 20px;
+  font-weight: bold;
 }
 
 .hidden {
-  background-color: #fff;
+ color: #fff;
 }

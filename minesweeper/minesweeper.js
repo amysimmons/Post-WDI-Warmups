@@ -75,12 +75,7 @@ Minesweeper = {
 
   },
 
-  // updates squares to reflect number of mines they are touching
-  updateSquareNumbers: function(){
-
-  },
-
-  // checks is player clicked on normal square, a mine, or placed a flag
+  // checks if player clicked on normal square, a mine, or placed a flag
   checkGuess: function(guess){
 
     if ($(guess).hasClass('mine')){
@@ -91,12 +86,11 @@ Minesweeper = {
 
   },
 
+  // calculates the number of mines around the selected square
   calcNumber: function(guess, width){
 
     var indexSelectedDiv = _.indexOf($('.square'), guess);
-
     var algorithm = [1, Minesweeper.width - 1, Minesweeper.width, Minesweeper.width + 1];
-
     var indexSurroundingDivs = [];
 
     for (var i = 0; i < algorithm.length; i++) {
@@ -105,26 +99,24 @@ Minesweeper = {
       indexSurroundingDivs.push(indexSelectedDiv - index);
     };
 
-    var count = 0;
+    var mineCount = 0;
 
     for (var i = 0; i < indexSurroundingDivs.length; i++) {
       var index = indexSurroundingDivs[i];
       var div = $('.square')[index];
       if ($(div).hasClass('mine')){
-        count += 1;
+        mineCount += 1;
       }
     };
 
-    count;
-    console.log(count);
-
-    Minesweeper.showNumber();
+    mineCount;
+    Minesweeper.showNumber(guess, mineCount);
 
   },
 
-  showNumber: function(){
-
-
+  // displays the number of mines on click
+  showNumber: function(guess, mineCount){
+    $(guess).addClass('num').html(mineCount);
   },
 
   placeFlag: function(){
@@ -133,9 +125,9 @@ Minesweeper = {
 
   // shows all mines and squares, the game is over
   gameOver: function(){
-    console.log('mine clicked');
     $('.mine').removeClass('hidden');
-    console
+    $('<p></p>').text('Game Over').appendTo('body');
+    $('<a></a>').addClass('new-game').attr('href', '').text('New game').appendTo('body');
   },
 
   gameWon: function(){
@@ -143,7 +135,9 @@ Minesweeper = {
   },
 
   newGame: function(){
-
+    $('body').empty();
+    Minesweeper.renderHeading();
+    Minesweeper.renderForm();
   }
 
 }
@@ -157,6 +151,11 @@ $(document).ready(function(){
   $('body').on('click', '.square', function(event){
     var guess = event.currentTarget;
     Minesweeper.checkGuess(guess);
+  });
+
+  $('body').on('click', '.new-game', function(event){
+    event.preventDefault();
+    Minesweeper.newGame();
   });
 
 });
