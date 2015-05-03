@@ -25,53 +25,91 @@ Minesweeper = {
   sizeOfBoard: function(){
 
     var sizeChoice = $('input:checked').val();
-    Minesweeper.width;
-    var length;
+    var boardSize;
 
     if (sizeChoice === "S"){
-      Minesweeper.width = 9;
-      length = 9;
+      boardSize = 9;
     }else if (sizeChoice === "M"){
-      Minesweeper.width = 12;
-      length = 12;
+      boardSize = 12;
     }else if (sizeChoice === "L") {
-      Minesweeper.width = 15;
-      length = 15;
+      boardSize = 15;
     }
    
-    Minesweeper.renderGame(Minesweeper.width, length);
+    Minesweeper.initialize(boardSize);
 
   },
 
+  initialize: function(boardSize) {
+    // creates an empty array with the num of elements equivalent to boardSize
+    Minesweeper.world = new Array(boardSize);
+ 
+    // for each of those elements, initiate a row  
+    for(var i = 0; i < boardSize; i ++) {
+      Minesweeper.world[i] = Minesweeper.initRow(boardSize);
+    }
+    console.log(Minesweeper.world);
+    Minesweeper.renderBoard();
+  },
+
+  initRow: function(rowSize) {
+
+    // creates an empty array with the num of elements equivalent to rowSize
+    var row = new Array(rowSize);
+    
+    // for each of the row elements, create a cell
+    for(var i = 0; i < rowSize; i++) {
+      // Create our cell and put some attributes into the object.
+      row[i] = {
+        selected: false,
+        mine: false,
+        flagged: false
+      }
+    }
+    return row;
+  },
+
   // draw the board
-  renderGame: function(width, length){
+  renderBoard: function(){
 
     $('.game-dimensions-form').remove();
     $('<div></div>').addClass('board').appendTo('body');
 
-    _(length).times(function(){
-      $('<div>').addClass('row').appendTo('.board');
-    });
+    for (var i = 0; i < Minesweeper.world.length; i++) {
+      var row = $('<div>').addClass('row').appendTo('.board');
 
-    var dataID = 0;
-    _.each($('.row'), function(row){
-      _(Minesweeper.width).times(function(){
-        dataID += 1;
-        $('<div>').addClass('square').attr('data-id', dataID).appendTo(row);
-      });
-    });
-  
-  Minesweeper.placeMines();
+      for (var x = 0; x < Minesweeper.world.length; x++) {
+        var cell = Minesweeper.world[i][x]
+        $('<div>').addClass('cell').appendTo(row);
+      };
+
+    };
+
+    Minesweeper.placeMines();
 
   },
 
   // randomly place the mines
   placeMines: function(){
 
-    var mines = _.shuffle($('.square')).slice(0,10);
-    _.each(mines, function(mine){
-      $(mine).addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
+    var min = 0;
+    var max = Minesweeper.world.length - 1;
+
+    getRandomInt = function(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    _(10).times(function(){
+      var randCol = getRandomInt(min, max);
+      console.log(randCol);
+
+      var randRow = getRandomInt(min, max);
+      console.log(randRow);
+
+      Minesweeper.world[randCol][randRow].mine = true
+      console.log(Minesweeper.world[randCol][randRow]);
     });
+
+    //$(mine).addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
 
   },
 
@@ -147,7 +185,8 @@ $(document).ready(function(){
   Minesweeper.renderHeading();
   Minesweeper.renderForm();
 
-  $('submit').on('click', Minesweeper.sizeOfBoard);
+  $('body').on('click', 'submit', Minesweeper.sizeOfBoard);
+
   $('body').on('click', '.square', function(event){
     var guess = event.currentTarget;
     Minesweeper.checkGuess(guess);
@@ -159,6 +198,9 @@ $(document).ready(function(){
   });
 
 });
+
+
+
 
 
 // Build your board object and the render() function which displays and updates it.
@@ -186,3 +228,38 @@ $(document).ready(function(){
 // }
 // Then you can call those functions like App.foo()
 // But try to keep each function no more than 10 lines long.
+
+// =======
+
+// One key thing with programming (particularly for games or similar things)
+// is to think about the "data structure" and have this data model separate
+// from the logic.
+ 
+// MS = {
+//   initialize: function(boardSize) {
+//     MS.world = new Array(boardSize);
+ 
+//     for(var i=0;i<boardSize;i++) {
+//       MS.world[i] = MS.initRow(boardSize);
+//     }
+//   },
+//   initRow: function(rowSize) {
+//     var row = new Array(rowSize);
+//     for(var i=0;i<rowSize;i++) {
+      
+//       // Create our cell and put some attributes into the object.
+//       // It's expected that these attributes would expand based on the requirements
+//       // of the project.
+//       row[i] = {
+//         visible: false,
+//         bomb: false,
+//         flagged: false
+//       }
+//     }
+//     return row;
+//   }
+// }
+ 
+// MS.initialize(3);
+ 
+// console.log(MS.world);

@@ -6,7 +6,7 @@ body {
   display: block;
 }
 
-.square {
+.cell {
   border: 1px solid lightgrey;
   width: 30px;
   height: 30px;
