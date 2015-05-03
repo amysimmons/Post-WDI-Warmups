@@ -112,6 +112,8 @@ Minesweeper = {
 
     });
 
+    // UP TO HERE !!!!
+
   },
 
   // checks if player clicked on normal square, a mine, or placed a flag
@@ -199,9 +201,6 @@ $(document).ready(function(){
   });
 
 });
-
-
-
 
 
 // Build your board object and the render() function which displays and updates it.
