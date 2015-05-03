@@ -42,24 +42,25 @@ Minesweeper = {
   initialize: function(boardSize) {
     // creates an empty array with the num of elements equivalent to boardSize
     Minesweeper.world = new Array(boardSize);
- 
+
     // for each of those elements, initiate a row  
     for(var i = 0; i < boardSize; i ++) {
-      Minesweeper.world[i] = Minesweeper.initRow(boardSize);
+      var count = i
+      Minesweeper.world[i] = Minesweeper.initRow(boardSize, count);
     }
     console.log(Minesweeper.world);
     Minesweeper.renderBoard();
   },
 
-  initRow: function(rowSize) {
-
+  initRow: function(rowSize, count) {
     // creates an empty array with the num of elements equivalent to rowSize
     var row = new Array(rowSize);
-    
     // for each of the row elements, create a cell
     for(var i = 0; i < rowSize; i++) {
       // Create our cell and put some attributes into the object.
+      
       row[i] = {
+        id: count + '-' + i,
         selected: false,
         mine: false,
         flagged: false
@@ -78,8 +79,8 @@ Minesweeper = {
       var row = $('<div>').addClass('row').appendTo('.board');
 
       for (var x = 0; x < Minesweeper.world.length; x++) {
-        var cell = Minesweeper.world[i][x]
-        $('<div>').addClass('cell').appendTo(row);
+        var cell = Minesweeper.world[i][x];
+        $('<div>').addClass('cell').addClass(cell.id).appendTo(row);
       };
 
     };
@@ -100,16 +101,16 @@ Minesweeper = {
 
     _(10).times(function(){
       var randCol = getRandomInt(min, max);
-      console.log(randCol);
-
       var randRow = getRandomInt(min, max);
-      console.log(randRow);
 
       Minesweeper.world[randCol][randRow].mine = true
       console.log(Minesweeper.world[randCol][randRow]);
-    });
 
-    //$(mine).addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
+      var id = Minesweeper.world[randCol][randRow].id;
+
+      $('.'+id).addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
+
+    });
 
   },
 
@@ -263,3 +264,21 @@ $(document).ready(function(){
 // MS.initialize(3);
  
 // console.log(MS.world);
+
+// need an id in my cell
+// which you include as a data-cell-id in your div
+// so you can relate them together
+
+// also create a function that returns a cell when you have an id
+
+// One of the things you're doing is creating a long chain of calls: initialize 
+// -> renderBoard -> placemines
+// Instead try to setup your data structure separately, so place the mines into
+//  the data structure, then render the data structure itself.
+// that way when you need to update a cell you change the cell and just rerender
+//  the data structure..
+
+
+
+
+
