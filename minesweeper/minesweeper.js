@@ -61,6 +61,8 @@ Minesweeper = {
       
       row[i] = {
         id: count + '-' + i,
+        row: count,
+        col: i,
         selected: false,
         mine: false,
         flagged: false
@@ -80,7 +82,7 @@ Minesweeper = {
 
       for (var x = 0; x < Minesweeper.world.length; x++) {
         var cell = Minesweeper.world[i][x];
-        $('<div>').addClass('cell').addClass(cell.id).appendTo(row);
+        $('<div>').addClass('cell').attr('id', cell.id).attr('row', cell.row).attr('col', cell.col).appendTo(row);
       };
 
     };
@@ -119,48 +121,75 @@ Minesweeper = {
   // checks if player clicked on normal square, a mine, or placed a flag
   checkGuess: function(guess){
 
-    if ($(guess).hasClass('mine')){
+    var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
+
+    if (clicked.mine){
        Minesweeper.gameOver();  
-    }else {
-      Minesweeper.calcNumber(guess);
+    }else if (clicked.selected === false) {
+      Minesweeper.calcNumber(clicked);
+      clicked.selected = true;
     }
 
   },
 
   // calculates the number of mines around the selected square
-  calcNumber: function(guess, width){
+  calcNumber: function(clicked){
 
-    var indexSelectedDiv = _.indexOf($('.square'), guess);
-    var algorithm = [1, Minesweeper.width - 1, Minesweeper.width, Minesweeper.width + 1];
-    var indexSurroundingDivs = [];
+    if (clicked.row > 0) {
+      var cellsAbove = [
+        Minesweeper.world[clicked.row - 1][clicked.col - 1], 
+        Minesweeper.world[clicked.row - 1][clicked.col],
+        Minesweeper.world[clicked.row - 1][clicked.col + 1]
+      ]
+    }
 
-    for (var i = 0; i < algorithm.length; i++) {
-      var index = algorithm[i];
-      indexSurroundingDivs.push(indexSelectedDiv + index);
-      indexSurroundingDivs.push(indexSelectedDiv - index);
-    };
+    var cellsAside = [];
+
+    if (clicked.col > 0){
+      cellsAside.push(Minesweeper.world[clicked.row][clicked.col - 1]); 
+    }
+
+    if (clicked.col < Minesweeper.world.length - 1) {
+      cellsAside.push(Minesweeper.world[clicked.row][clicked.col + 1]);
+    }
+
+    if (clicked.row < Minesweeper.world.length - 1){
+      var cellsBelow = [
+        Minesweeper.world[clicked.row + 1][clicked.col - 1], 
+        Minesweeper.world[clicked.row + 1][clicked.col],
+        Minesweeper.world[clicked.row + 1][clicked.col + 1]
+      ]
+    }
 
     var mineCount = 0;
 
-    for (var i = 0; i < indexSurroundingDivs.length; i++) {
-      var index = indexSurroundingDivs[i];
-      var div = $('.square')[index];
-      if ($(div).hasClass('mine')){
-        mineCount += 1;
-      }
-    };
+    _.each(cellsAbove, function(cell){
+      if (cell.mine){ mineCount += 1 }
+    });
+
+    _.each(cellsAside, function(cell){
+      if (cell.mine){ mineCount += 1 }
+    });
+
+    _.each(cellsBelow, function(cell){
+      if (cell.mine){ mineCount += 1 }
+    });
 
     mineCount;
-    Minesweeper.showNumber(guess, mineCount);
+    console.log(mineCount);
+
+    Minesweeper.showNumber(clicked, mineCount);
 
   },
 
   // displays the number of mines on click
-  showNumber: function(guess, mineCount){
-    $(guess).addClass('num').html(mineCount);
+  showNumber: function(clicked, mineCount){
+    clicked.mineCount = mineCount;
+    clicked;
+    $('[id='+clicked.id+']').addClass('num').html(mineCount);
   },
 
-  placeFlag: function(){
+  placeFlag: function(guess){
 
   },
 
@@ -190,10 +219,30 @@ $(document).ready(function(){
 
   $('body').on('click', 'submit', Minesweeper.sizeOfBoard);
 
-  $('body').on('click', '.square', function(event){
-    var guess = event.currentTarget;
-    Minesweeper.checkGuess(guess);
-  });
+  // $('body').on('click', '.square', function(event){
+
+  // });
+
+
+
+    $('body').on('mousedown', '.cell', function(event) {
+      switch (event.which) {
+          case 1:
+              console.log('Left Mouse button pressed.');
+              var guess = event.currentTarget;
+              Minesweeper.checkGuess(guess);
+              break;
+          case 2:
+              console.log('Middle Mouse button pressed.');
+              break;
+          case 3:
+              console.log('Right Mouse button pressed.');
+              Minesweeper.placeFlag(guess);
+              break;
+          default:
+              console.log('You have a strange Mouse!');
+      }
+    });
 
   $('body').on('click', '.new-game', function(event){
     event.preventDefault();
