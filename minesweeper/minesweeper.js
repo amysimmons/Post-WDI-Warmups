@@ -48,7 +48,6 @@ Minesweeper = {
       var count = i
       Minesweeper.world[i] = Minesweeper.initRow(boardSize, count);
     }
-    console.log(Minesweeper.world);
     Minesweeper.renderBoard();
   },
 
@@ -113,8 +112,6 @@ Minesweeper = {
       $('.'+id).addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
 
     });
-
-    // UP TO HERE !!!!
 
   },
 
@@ -190,12 +187,14 @@ Minesweeper = {
   },
 
   placeFlag: function(guess){
-
+    var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
+    clicked.flagged = true;
+    $('[id='+clicked.id+']').addClass('flag').html('<i class="fa fa-flag"></i>');
   },
 
   // shows all mines and squares, the game is over
   gameOver: function(){
-    $('.mine').removeClass('hidden');
+    $('.board').removeClass('hidden');
     $('<p></p>').text('Game Over').appendTo('body');
     $('<a></a>').addClass('new-game').attr('href', '').text('New game').appendTo('body');
   },
@@ -219,30 +218,25 @@ $(document).ready(function(){
 
   $('body').on('click', 'submit', Minesweeper.sizeOfBoard);
 
-  // $('body').on('click', '.square', function(event){
-
-  // });
-
-
-
-    $('body').on('mousedown', '.cell', function(event) {
-      switch (event.which) {
-          case 1:
-              console.log('Left Mouse button pressed.');
-              var guess = event.currentTarget;
-              Minesweeper.checkGuess(guess);
-              break;
-          case 2:
-              console.log('Middle Mouse button pressed.');
-              break;
-          case 3:
-              console.log('Right Mouse button pressed.');
-              Minesweeper.placeFlag(guess);
-              break;
-          default:
-              console.log('You have a strange Mouse!');
-      }
-    });
+  $('body').on('mousedown', '.cell', function(event) {
+    switch (event.which) {
+        case 1:
+            console.log('Left Mouse button pressed.');
+            var guess = event.currentTarget;
+            Minesweeper.checkGuess(guess);
+            break;
+        case 2:
+            console.log('Middle Mouse button pressed.');
+            break;
+        case 3:
+            console.log('Right Mouse button pressed.');
+            var guess = event.currentTarget;
+            Minesweeper.placeFlag(guess);
+            break;
+        default:
+            console.log('You have a strange Mouse!');
+    }
+  });
 
   $('body').on('click', '.new-game', function(event){
     event.preventDefault();
