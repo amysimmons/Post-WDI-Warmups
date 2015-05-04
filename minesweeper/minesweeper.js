@@ -103,13 +103,21 @@ Minesweeper = {
     _(10).times(function(){
       var randCol = getRandomInt(min, max);
       var randRow = getRandomInt(min, max);
-
       Minesweeper.world[randCol][randRow].mine = true
-      console.log(Minesweeper.world[randCol][randRow]);
 
-      var id = Minesweeper.world[randCol][randRow].id;
+    });
 
-      $('.'+id).addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
+  },
+
+  addMineClasses: function(){
+    _.each(Minesweeper.world, function(row) { 
+
+      _.each(row, function(cell){
+
+        if (cell.mine){ 
+          $('[id='+cell.id+']').addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
+        }
+      }) 
 
     });
 
@@ -121,6 +129,9 @@ Minesweeper = {
     var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
 
     if (clicked.mine){
+      // var id = Minesweeper.world[randCol][randRow].id;
+      // $('.'+id).addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
+
        Minesweeper.gameOver();  
     }else if (clicked.selected === false) {
       Minesweeper.calcNumber(clicked);
@@ -194,7 +205,8 @@ Minesweeper = {
 
   // shows all mines and squares, the game is over
   gameOver: function(){
-    $('.board').removeClass('hidden');
+    Minesweeper.addMineClasses();
+    $('.mine').removeClass('hidden');
     $('<p></p>').text('Game Over').appendTo('body');
     $('<a></a>').addClass('new-game').attr('href', '').text('New game').appendTo('body');
   },
@@ -215,7 +227,6 @@ $(document).ready(function(){
 
   Minesweeper.renderHeading();
   Minesweeper.renderForm();
-
   $('body').on('click', 'submit', Minesweeper.sizeOfBoard);
 
   $('body').on('mousedown', '.cell', function(event) {
