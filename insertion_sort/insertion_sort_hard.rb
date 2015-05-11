@@ -1,14 +1,21 @@
+#sorts all array elements - IN PROGRESS
+
 def insertionSort(ar) 
-    num = ar.last
-    index = ar.length - 2
-    
-   while index >= 0
+    i1 = 0
+    i2 = 1
+    val = ar[1]
+    last = ar.length - 1
+
+
+   while index <= last
+    if ar[i1] < 
+
+
     if num < ar[index] 
         ar[index + 1] = ar[index]
         print ar
     else
         ar[index + 1] = num
-        index = -1
         print ar
     end
     index-=1
