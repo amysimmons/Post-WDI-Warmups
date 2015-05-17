@@ -24,8 +24,10 @@ Minesweeper = {
   // determine size of board
   sizeOfBoard: function(){
 
+
     var sizeChoice = $('input:checked').val();
     var boardSize;
+
 
     if (sizeChoice === "S"){
       boardSize = 9;
@@ -35,11 +37,11 @@ Minesweeper = {
       boardSize = 15;
     }
    
-    Minesweeper.initialize(boardSize);
+    Minesweeper.initializeBoard(boardSize);
 
   },
 
-  initialize: function(boardSize) {
+  initializeBoard: function(boardSize) {
     // creates an empty array with the num of elements equivalent to boardSize
     Minesweeper.world = new Array(boardSize);
 
@@ -64,7 +66,8 @@ Minesweeper = {
         col: i,
         selected: false,
         mine: false,
-        flagged: false
+        flagged: false,
+        surroundingMines: 0
       }
     }
     return row;
@@ -106,7 +109,7 @@ Minesweeper = {
       Minesweeper.world[randCol][randRow].mine = true
 
     });
-
+    Minesweeper.addMineClasses();
   },
 
   addMineClasses: function(){
@@ -120,8 +123,60 @@ Minesweeper = {
       }) 
 
     });
-
+    // _.map(Minesweeper.world, function(i){ if (i.mine === true) {console.log(i);} });
+    Minesweeper.calculateSurroundingMines();
   },
+
+  calculateSurroundingMines: function(){
+    _.each(Minesweeper.world, function(row) { 
+      _.each(row, function(cell){
+
+  
+      if (cell.row > 0) {
+        var cellsAbove = [
+          Minesweeper.world[cell.row - 1][cell.col - 1], 
+          Minesweeper.world[cell.row - 1][cell.col],
+          Minesweeper.world[cell.row - 1][cell.col + 1]
+        ]
+      } else {
+        cellsAbove = []
+      }
+
+      var cellsAside = [];
+
+      if (cell.col > 0){
+        cellsAside.push(Minesweeper.world[cell.row][cell.col - 1]); 
+      } else if (cell.col < Minesweeper.world.length - 1) {
+        cellsAside.push(Minesweeper.world[cell.row][cell.col + 1]);
+      } else {
+        cellsAside = [];
+      }
+
+      if (cell.row < Minesweeper.world.length - 1){
+
+        var cellsBelow = [
+          Minesweeper.world[cell.row + 1][cell.col - 1], 
+          Minesweeper.world[cell.row + 1][cell.col],
+          Minesweeper.world[cell.row + 1][cell.col + 1]
+        ]
+      } else {
+        cellsBelow = []
+      }
+
+      var surroundingCells = _.union(cellsAbove, cellsAside, cellsBelow);
+      surroundingCells = _.compact(surroundingCells);
+
+      _.each(surroundingCells, function(surroundingCell){
+        if (surroundingCell.mine === true){ cell.surroundingMines += 1 }
+      });
+
+      cell.surroundingMines;
+      console.log(cell.surroundingMines);
+
+      }) 
+    });
+
+  }, 
 
   // checks if player clicked on normal square, a mine, or placed a flag
   checkGuess: function(guess){
@@ -129,97 +184,26 @@ Minesweeper = {
     var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
 
     if (clicked.mine){
-      // var id = Minesweeper.world[randCol][randRow].id;
-      // $('.'+id).addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
-
        Minesweeper.gameOver();  
     }else if (clicked.selected === false) {
-      Minesweeper.calcNumber(clicked);
+      Minesweeper.showNumber(clicked);
       clicked.selected = true;
     }
 
   },
 
-  // calculates the number of mines around the selected square
-  calcNumber: function(clicked){
-
-    if (clicked.row > 0) {
-      var cellsAbove = [
-        Minesweeper.world[clicked.row - 1][clicked.col - 1], 
-        Minesweeper.world[clicked.row - 1][clicked.col],
-        Minesweeper.world[clicked.row - 1][clicked.col + 1]
-      ]
-    }
-
-    var cellsAside = [];
-
-    if (clicked.col > 0){
-      cellsAside.push(Minesweeper.world[clicked.row][clicked.col - 1]); 
-    }
-
-    if (clicked.col < Minesweeper.world.length - 1) {
-      cellsAside.push(Minesweeper.world[clicked.row][clicked.col + 1]);
-    }
-
-    if (clicked.row < Minesweeper.world.length - 1){
-      var cellsBelow = [
-        Minesweeper.world[clicked.row + 1][clicked.col - 1], 
-        Minesweeper.world[clicked.row + 1][clicked.col],
-        Minesweeper.world[clicked.row + 1][clicked.col + 1]
-      ]
-    }
-
-    var mineCount = 0;
-
-    _.each(cellsAbove, function(cell){
-      if (cell.mine){ mineCount += 1 }
-    });
-
-    _.each(cellsAside, function(cell){
-      if (cell.mine){ mineCount += 1 }
-    });
-
-    _.each(cellsBelow, function(cell){
-      if (cell.mine){ mineCount += 1 }
-    });
-
-    mineCount;
-    console.log(mineCount);
-
-    Minesweeper.showNumber(clicked, mineCount);
-
-  },
-
-  // displays the number of mines on click
-  showNumber: function(clicked, mineCount){
-    clicked.mineCount = mineCount;
-    clicked;
-    $('[id='+clicked.id+']').addClass('num').html(mineCount);
+  showNumber: function(clicked){
+    $('[id='+clicked.id+']').addClass('num').html(clicked.surroundingMines);
   },
 
   placeFlag: function(guess){
     var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
     clicked.flagged = true;
     $('[id='+clicked.id+']').addClass('flag').html('<i class="fa fa-flag"></i>');
-
-    var correctGuesses = 0
-
-    if (clicked.flagged && clicked.mine){
-     correctGuesses += 1;
-    }
-
-    if (correctGuesses == 10) {
-      Minesweeper.addMineClasses();
-      $('.mine').removeClass('hidden');
-      $('<p></p>').text('You won').appendTo('body');
-      $('<a></a>').addClass('new-game').attr('href', '').text('New game').appendTo('body');
-    }
-
   },
 
   // shows all mines and squares, the game is over
   gameOver: function(){
-    Minesweeper.addMineClasses();
     $('.mine').removeClass('hidden');
     $('<p></p>').text('Game Over').appendTo('body');
     $('<a></a>').addClass('new-game').attr('href', '').text('New game').appendTo('body');
@@ -233,6 +217,36 @@ Minesweeper = {
     $('body').empty();
     Minesweeper.renderHeading();
     Minesweeper.renderForm();
+  },
+
+  initEvents: function(){
+  $('body').on('click', 'submit', Minesweeper.sizeOfBoard);
+
+    $('body').on('mousedown', '.cell', function(event) {
+      switch (event.which) {
+          case 1:
+              console.log('Left Mouse button pressed.');
+              var guess = event.currentTarget;
+              Minesweeper.checkGuess(guess);
+              break;
+          case 2:
+              console.log('Middle Mouse button pressed.');
+              break;
+          case 3:
+              console.log('Right Mouse button pressed.');
+              var guess = event.currentTarget;
+              Minesweeper.placeFlag(guess);
+              break;
+          default:
+              console.log('You have a strange Mouse!');
+      }
+    });
+
+    $('body').on('click', '.new-game', function(event){
+      event.preventDefault();
+      Minesweeper.newGame();
+    });
+
   }
 
 }
@@ -241,34 +255,30 @@ $(document).ready(function(){
 
   Minesweeper.renderHeading();
   Minesweeper.renderForm();
-  $('body').on('click', 'submit', Minesweeper.sizeOfBoard);
-
-  $('body').on('mousedown', '.cell', function(event) {
-    switch (event.which) {
-        case 1:
-            console.log('Left Mouse button pressed.');
-            var guess = event.currentTarget;
-            Minesweeper.checkGuess(guess);
-            break;
-        case 2:
-            console.log('Middle Mouse button pressed.');
-            break;
-        case 3:
-            console.log('Right Mouse button pressed.');
-            var guess = event.currentTarget;
-            Minesweeper.placeFlag(guess);
-            break;
-        default:
-            console.log('You have a strange Mouse!');
-    }
-  });
-
-  $('body').on('click', '.new-game', function(event){
-    event.preventDefault();
-    Minesweeper.newGame();
-  });
+  Minesweeper.initEvents();
 
 });
+
+
+
+// init process
+ 
+// Minesweeper.initEvents();                 // initialize events. Remember to listen on $(document).on('click', '.cell')
+//                                           // etc...
+ 
+// Minesweeper.initializeBoard('M');         // create the board of the right size.
+// Minesweeper.placeMines();                 // update Minesweeper.world to update the random cells with mine = true;
+// Minesweeper.calculateSurroundingMines();  // updates each cell to figure out the number of mines surrounding it.
+// Minesweeper.render();                     // renders the game board.
+ 
+
+
+// the structure of the board in the dom should allow you to figure out which cell is clicked on.
+// something like:
+// <div class="cell" data-id="1"></div>
+//
+// every time someone clicks on a cell it updates the cell in MS.world and calls Minesweeper.render();
+// which would replace the entire board with new divs for every cell.
 
 
 // Build your board object and the render() function which displays and updates it.
@@ -346,21 +356,6 @@ $(document).ready(function(){
 //  the data structure..
 
 
-// init process
- 
-// Minesweeper.initEvents();                 // initialize events. Remember to listen on $(document).on('click', '.cell')
-//                                           // etc...
- 
-// Minesweeper.initializeBoard('M');         // create the board of the right size.
-// Minesweeper.placeMines();                 // update Minesweeper.world to update the random cells with mine = true;
-// Minesweeper.calculateSurroundingMines();  // updates each cell to figure out the number of mines surrounding it.
-// Minesweeper.render();                     // renders the game board.
- 
-// // the structure of the board in the dom should allow you to figure out which cell is clicked on.
-// // something like:
-// // <div class="cell" data-id="1"></div>
-// //
-// // every time someone clicks on a cell it updates the cell in MS.world and calls Minesweeper.render();
-// // which would replace the entire board with new divs for every cell.
+
 
 
