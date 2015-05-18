@@ -104,12 +104,18 @@ Minesweeper = {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    _(numMines).times(function(){
+    var mineCount = 0;
+
+    while (mineCount < numMines) {
       var randCol = getRandomInt(min, max);
       var randRow = getRandomInt(min, max);
-      Minesweeper.world[randCol][randRow].mine = true
+      var cell = Minesweeper.world[randCol][randRow]
+      if (cell.mine === false){
+        cell.mine = true;
+        mineCount += 1;
+      }
+    }
 
-    });
     Minesweeper.addMineClasses();
   },
 
@@ -117,7 +123,6 @@ Minesweeper = {
     _.each(Minesweeper.world, function(row) { 
 
       _.each(row, function(cell){
-
         if (cell.mine){ 
           $('[id='+cell.id+']').addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
         }
