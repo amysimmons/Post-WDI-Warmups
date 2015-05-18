@@ -28,7 +28,6 @@ Minesweeper = {
     var sizeChoice = $('input:checked').val();
     var boardSize;
 
-
     if (sizeChoice === "S"){
       boardSize = 9;
     }else if (sizeChoice === "M"){
@@ -50,7 +49,7 @@ Minesweeper = {
       var count = i
       Minesweeper.world[i] = Minesweeper.initRow(boardSize, count);
     }
-    Minesweeper.renderBoard();
+    Minesweeper.renderBoard(boardSize);
   },
 
   initRow: function(rowSize, count) {
@@ -74,7 +73,7 @@ Minesweeper = {
   },
 
   // draw the board
-  renderBoard: function(){
+  renderBoard: function(boardSize){
 
     $('.game-dimensions-form').remove();
     $('<div></div>').addClass('board').appendTo('body');
@@ -89,13 +88,15 @@ Minesweeper = {
 
     };
 
-    Minesweeper.placeMines();
+    Minesweeper.placeMines(boardSize);
 
   },
 
   // randomly place the mines
-  placeMines: function(){
+  placeMines: function(boardSize){
 
+    Minesweeper.numMines = boardSize + 1;
+    var numMines = Minesweeper.numMines;
     var min = 0;
     var max = Minesweeper.world.length - 1;
 
@@ -103,7 +104,7 @@ Minesweeper = {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    _(10).times(function(){
+    _(numMines).times(function(){
       var randCol = getRandomInt(min, max);
       var randRow = getRandomInt(min, max);
       Minesweeper.world[randCol][randRow].mine = true
@@ -131,7 +132,6 @@ Minesweeper = {
     _.each(Minesweeper.world, function(row) { 
       _.each(row, function(cell){
 
-  
       if (cell.row > 0) {
         var cellsAbove = [
           Minesweeper.world[cell.row - 1][cell.col - 1], 
@@ -146,11 +146,10 @@ Minesweeper = {
 
       if (cell.col > 0){
         cellsAside.push(Minesweeper.world[cell.row][cell.col - 1]); 
-      } else if (cell.col < Minesweeper.world.length - 1) {
+      } 
+      if (cell.col < Minesweeper.world.length - 1) {
         cellsAside.push(Minesweeper.world[cell.row][cell.col + 1]);
-      } else {
-        cellsAside = [];
-      }
+      } 
 
       if (cell.row < Minesweeper.world.length - 1){
 
@@ -170,9 +169,6 @@ Minesweeper = {
         if (surroundingCell.mine === true){ cell.surroundingMines += 1 }
       });
 
-      cell.surroundingMines;
-      console.log(cell.surroundingMines);
-
       }) 
     });
 
@@ -184,7 +180,8 @@ Minesweeper = {
     var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
 
     if (clicked.mine){
-       Minesweeper.gameOver();  
+        var result = "You lose!"
+       Minesweeper.gameOver(result);  
     }else if (clicked.selected === false) {
       Minesweeper.showNumber(clicked);
       clicked.selected = true;
@@ -197,15 +194,34 @@ Minesweeper = {
   },
 
   placeFlag: function(guess){
+
+    $(guess).removeClass('hidden');
+
     var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
     clicked.flagged = true;
     $('[id='+clicked.id+']').addClass('flag').html('<i class="fa fa-flag"></i>');
+
+    var flagCount = 0;
+
+    _.each(Minesweeper.world, function(row) { 
+      _.each(row, function(cell){
+        if(cell.flagged){flagCount += 1}
+      }) 
+    });
+
+    flagCount;
+
+    if (flagCount === Minesweeper.numMines){ 
+      var result = 'You win!'
+      Minesweeper.gameOver(result);
+    }
+
   },
 
   // shows all mines and squares, the game is over
-  gameOver: function(){
+  gameOver: function(result){
     $('.mine').removeClass('hidden');
-    $('<p></p>').text('Game Over').appendTo('body');
+    $('<p></p>').text(result).appendTo('body');
     $('<a></a>').addClass('new-game').attr('href', '').text('New game').appendTo('body');
   },
 
