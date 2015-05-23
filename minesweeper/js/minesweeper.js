@@ -99,7 +99,7 @@ Minesweeper = {
         mineCount += 1;
       }
     }
-    
+
     Minesweeper.calculateSurroundingMines();
   },
 
@@ -247,3 +247,12 @@ $(document).ready(function(){
   Minesweeper.renderForm();
   Minesweeper.initEvents();
 });
+
+// 1. make the zeros expand 
+// 2. dont allow click on flag once flagged - so disable left click but right click to remove the flag
+// 3. dont flag things already been revealed 
+// 4. append at bottom
+// 5. once the game is over, dont allow any more clicks on the board 
+
+
+
