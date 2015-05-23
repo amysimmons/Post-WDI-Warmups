@@ -94,24 +94,12 @@ Minesweeper = {
       var randCol = getRandomInt(min, max);
       var randRow = getRandomInt(min, max);
       var cell = Minesweeper.world[randCol][randRow]
-      if (cell.mine === false){
+      if (!cell.mine){
         cell.mine = true;
         mineCount += 1;
       }
     }
-
-    Minesweeper.addMineClasses();
-  },
-
-  addMineClasses: function(){
-    _.each(Minesweeper.world, function(row) {
-      _.each(row, function(cell){
-        if (cell.mine){ 
-          $('[id='+cell.id+']').addClass('mine').addClass('hidden').html('<i class="fa fa-bolt"></i>');
-        }
-      }) 
-    });
-
+    
     Minesweeper.calculateSurroundingMines();
   },
 
@@ -150,7 +138,7 @@ Minesweeper = {
         var surroundingCells = _.union(cellsAbove, cellsAside, cellsBelow);
         surroundingCells = _.compact(surroundingCells);
         _.each(surroundingCells, function(surroundingCell){
-          if (surroundingCell.mine === true){ cell.surroundingMines += 1 }
+          if (surroundingCell.mine){ cell.surroundingMines += 1 }
         });
       }) 
     });
@@ -162,7 +150,7 @@ Minesweeper = {
     if (clicked.mine){
         var result = "You lose!"
        Minesweeper.gameOver(result);  
-    }else if (clicked.selected === false) {
+    }else if (!clicked.selected) {
       Minesweeper.showNumber(clicked);
       clicked.selected = true;
     }
@@ -196,20 +184,22 @@ Minesweeper = {
   },
 
   gameOver: function(result){
-    // reveal all mines 
-    $('.mine').removeClass('hidden');
-
-    // reveal all nums 
-    revealNums = function(){
+    // reveal all nums and mines 
+    revealNumsAndMines = function(){
       _.each(Minesweeper.world, function(row) { 
         _.each(row, function(cell){
           if (!cell.selected && !cell.mine) {
             $('[id='+cell.id+']').addClass('num').html(cell.surroundingMines);
           }
+          if (cell.mine){
+            $('[id='+cell.id+']').addClass('mine').html('<i class="fa fa-bolt"></i>');
+          }
         });
       });
     }
-    revealNums();
+    revealNumsAndMines();
+
+    // prevent clicks on board until new game begins
 
     // show result and new game link 
     $('<p></p>').text(result).appendTo('body');
