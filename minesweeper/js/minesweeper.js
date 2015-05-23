@@ -196,7 +196,22 @@ Minesweeper = {
   },
 
   gameOver: function(result){
+    // reveal all mines 
     $('.mine').removeClass('hidden');
+
+    // reveal all nums 
+    revealNums = function(){
+      _.each(Minesweeper.world, function(row) { 
+        _.each(row, function(cell){
+          if (!cell.selected && !cell.mine) {
+            $('[id='+cell.id+']').addClass('num').html(cell.surroundingMines);
+          }
+        });
+      });
+    }
+    revealNums();
+
+    // show result and new game link 
     $('<p></p>').text(result).appendTo('body');
     $('<a></a>').addClass('new-game').attr('href', '').text('New game').appendTo('body');
   },
