@@ -56,7 +56,8 @@ Minesweeper = {
         selected: false,
         mine: false,
         flagged: false,
-        surroundingMines: 0
+        surroundingMines: 0,
+        surroundedByZeros: false
       }
     }
 
@@ -137,13 +138,41 @@ Minesweeper = {
         }
         // calc cells
         var surroundingCells = _.union(cellsAbove, cellsAside, cellsBelow);
-        surroundingCells = _.compact(surroundingCells);
+        Minesweeper.surroundingCells = _.compact(surroundingCells);
+        surroundingCells = Minesweeper.surroundingCells;
+
+        // checks for mines around the cell and increases the surrounding mine count
         _.each(surroundingCells, function(surroundingCell){
           if (surroundingCell.mine){ cell.surroundingMines += 1 }
         });
+
+        // checks if the cell is surrounded by zeros
+        var zeroCount = 0;
+        var numSurrounding = surroundingCells.length;
+
+        _.each(surroundingCells, function(surroundingCell){
+          if (surroundingCell.surroundingMines === 0){
+            zeroCount += 1;
+            console.log(zeroCount);
+          }
+        });
+
+        zeroCount;
+
+        if (zeroCount === numSurrounding) {
+          cell.surroundedByZeros = true;
+        }
       })
     });
+
+    // Minesweeper.showZeros(Minesweeper.surroundingCells);
   },
+
+  // showZeros: function(surroundingCells){
+  //   console.log('show zeros called')
+  //   debugger
+
+  // },
 
   checkGuess: function(guess){
     var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
