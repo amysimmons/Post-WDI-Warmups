@@ -6,7 +6,7 @@ Minesweeper = {
 
   renderForm: function(){
     $('<form>').addClass('game-dimensions-form').appendTo('body');
-    
+
     var sizes = ["S", "M", "L"];
 
     for (var i = 0; i < sizes.length; i++) {
@@ -29,7 +29,7 @@ Minesweeper = {
     }else if (sizeChoice === "L") {
       boardSize = 15;
     }
-   
+
     Minesweeper.initializeBoard(boardSize);
   },
 
@@ -46,7 +46,7 @@ Minesweeper = {
 
   initRow: function(rowSize, count) {
     var row = new Array(rowSize);
-    
+
     for(var i = 0; i < rowSize; i++) {
       row[i] = {
         id: count + '-' + i,
@@ -104,12 +104,12 @@ Minesweeper = {
   },
 
   calculateSurroundingMines: function(){
-    _.each(Minesweeper.world, function(row) { 
+    _.each(Minesweeper.world, function(row) {
       _.each(row, function(cell){
         // above cells
         if (cell.row > 0) {
           var cellsAbove = [
-            Minesweeper.world[cell.row - 1][cell.col - 1], 
+            Minesweeper.world[cell.row - 1][cell.col - 1],
             Minesweeper.world[cell.row - 1][cell.col],
             Minesweeper.world[cell.row - 1][cell.col + 1]
           ]
@@ -119,15 +119,15 @@ Minesweeper = {
         // side cells
         var cellsAside = [];
         if (cell.col > 0){
-          cellsAside.push(Minesweeper.world[cell.row][cell.col - 1]); 
-        } 
+          cellsAside.push(Minesweeper.world[cell.row][cell.col - 1]);
+        }
         if (cell.col < Minesweeper.world.length - 1) {
           cellsAside.push(Minesweeper.world[cell.row][cell.col + 1]);
-        } 
+        }
         // cells below
         if (cell.row < Minesweeper.world.length - 1){
           var cellsBelow = [
-            Minesweeper.world[cell.row + 1][cell.col - 1], 
+            Minesweeper.world[cell.row + 1][cell.col - 1],
             Minesweeper.world[cell.row + 1][cell.col],
             Minesweeper.world[cell.row + 1][cell.col + 1]
           ]
@@ -140,16 +140,16 @@ Minesweeper = {
         _.each(surroundingCells, function(surroundingCell){
           if (surroundingCell.mine){ cell.surroundingMines += 1 }
         });
-      }) 
+      })
     });
-  }, 
+  },
 
   checkGuess: function(guess){
     var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
 
     if (clicked.mine){
         var result = "You lose!"
-       Minesweeper.gameOver(result);  
+       Minesweeper.gameOver(result);
     }else if (!clicked.selected) {
       Minesweeper.showNumber(clicked);
       clicked.selected = true;
@@ -169,24 +169,24 @@ Minesweeper = {
 
     var flagCount = 0;
 
-    _.each(Minesweeper.world, function(row) { 
+    _.each(Minesweeper.world, function(row) {
       _.each(row, function(cell){
         if(cell.flagged){flagCount += 1}
-      }) 
+      })
     });
 
     flagCount;
 
-    if (flagCount === Minesweeper.numMines){ 
+    if (flagCount === Minesweeper.numMines){
       var result = 'You win!'
       Minesweeper.gameOver(result);
     }
   },
 
   gameOver: function(result){
-    // reveal all nums and mines 
+    // reveal all nums and mines
     revealNumsAndMines = function(){
-      _.each(Minesweeper.world, function(row) { 
+      _.each(Minesweeper.world, function(row) {
         _.each(row, function(cell){
           if (!cell.selected && !cell.mine) {
             $('[id='+cell.id+']').addClass('num').html(cell.surroundingMines);
@@ -201,8 +201,10 @@ Minesweeper = {
 
     // prevent clicks on board until new game begins
 
-    // show result and new game link 
-    $('<p></p>').text(result).appendTo('body');
+    // show result and new game link
+    $('.result').empty();
+    $('.new-game').empty();
+    $('<p></p>').addClass('result').text(result).appendTo('body');
     $('<a></a>').addClass('new-game').attr('href', '').text('New game').appendTo('body');
   },
 
@@ -248,11 +250,11 @@ $(document).ready(function(){
   Minesweeper.initEvents();
 });
 
-// 1. make the zeros expand 
+// 1. make the zeros expand
 // 2. dont allow click on flag once flagged - so disable left click but right click to remove the flag
-// 3. dont flag things already been revealed 
+// 3. dont flag things already been revealed
 // 4. append at bottom
-// 5. once the game is over, dont allow any more clicks on the board 
+// 5. once the game is over, dont allow any more clicks on the board
 
 
 
