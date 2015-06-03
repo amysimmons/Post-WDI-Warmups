@@ -35,6 +35,7 @@ Minesweeper = {
 
   initializeBoard: function(boardSize) {
     Minesweeper.world = new Array(boardSize);
+    Minesweeper.game = true;
 
     for(var i = 0; i < boardSize; i ++) {
       var count = i
@@ -150,7 +151,7 @@ Minesweeper = {
     if (clicked.mine){
         var result = "You lose!"
        Minesweeper.gameOver(result);
-    }else if (!clicked.selected) {
+    }else if (!clicked.selected && !clicked.flagged) {
       Minesweeper.showNumber(clicked);
       clicked.selected = true;
     }
@@ -164,8 +165,11 @@ Minesweeper = {
     $(guess).removeClass('hidden');
 
     var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
-    clicked.flagged = true;
-    $('[id='+clicked.id+']').addClass('flag').html('<i class="fa fa-flag"></i>');
+
+    if (!clicked.selected && Minesweeper.game){
+      clicked.flagged = true;
+      $('[id='+clicked.id+']').addClass('flag').html('<i class="fa fa-flag"></i>');
+    }
 
     var flagCount = 0;
 
@@ -200,6 +204,8 @@ Minesweeper = {
     revealNumsAndMines();
 
     // prevent clicks on board until new game begins
+
+    Minesweeper.game = false;
 
     // show result and new game link
     $('.result').empty();
@@ -250,11 +256,7 @@ $(document).ready(function(){
   Minesweeper.initEvents();
 });
 
-// 1. make the zeros expand
-// 2. dont allow click on flag once flagged - so disable left click but right click to remove the flag
-// 3. dont flag things already been revealed
-// 4. append at bottom
-// 5. once the game is over, dont allow any more clicks on the board
+// TO DO: make the zeros expand
 
 
 
