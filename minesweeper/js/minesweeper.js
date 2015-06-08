@@ -107,39 +107,10 @@ Minesweeper = {
 
   calculateSurroundingMines: function(){
     _.each(Minesweeper.world, function(row) {
+
       _.each(row, function(cell){
-        // above cells
-        if (cell.row > 0) {
-          var cellsAbove = [
-            Minesweeper.world[cell.row - 1][cell.col - 1],
-            Minesweeper.world[cell.row - 1][cell.col],
-            Minesweeper.world[cell.row - 1][cell.col + 1]
-          ]
-        } else {
-          cellsAbove = [];
-        }
-        // side cells
-        var cellsAside = [];
-        if (cell.col > 0){
-          cellsAside.push(Minesweeper.world[cell.row][cell.col - 1]);
-        }
-        if (cell.col < Minesweeper.world.length - 1) {
-          cellsAside.push(Minesweeper.world[cell.row][cell.col + 1]);
-        }
-        // cells below
-        if (cell.row < Minesweeper.world.length - 1){
-          var cellsBelow = [
-            Minesweeper.world[cell.row + 1][cell.col - 1],
-            Minesweeper.world[cell.row + 1][cell.col],
-            Minesweeper.world[cell.row + 1][cell.col + 1]
-          ]
-        } else {
-          cellsBelow = [];
-        }
-        // calc cells
-        var surroundingCells = _.union(cellsAbove, cellsAside, cellsBelow);
-        Minesweeper.surroundingCells = _.compact(surroundingCells);
-        surroundingCells = Minesweeper.surroundingCells;
+
+        var surroundingCells = Minesweeper.getSurroundingCells(cell);
 
         // checks for mines around the cell and increases the surrounding mine count
         _.each(surroundingCells, function(surroundingCell){
@@ -147,42 +118,91 @@ Minesweeper = {
         });
 
         // checks if the cell is surrounded by zeros
-        var zeroCount = 0;
-        var numSurrounding = surroundingCells.length;
+        Minesweeper.calcZeros(cell, surroundingCells);
 
-        _.each(surroundingCells, function(surroundingCell){
-          if (surroundingCell.surroundingMines === 0){
-            zeroCount += 1;
-            console.log(zeroCount);
-          }
-        });
-
-        zeroCount;
-
-        if (zeroCount === numSurrounding) {
-          cell.surroundedByZeros = true;
-        }
       })
     });
-
-    // Minesweeper.showZeros(Minesweeper.surroundingCells);
   },
 
-  // showZeros: function(surroundingCells){
-  //   console.log('show zeros called')
-  //   debugger
+  getSurroundingCells: function(cell){
+      // above cells
+      if (cell.row > 0) {
+        var cellsAbove = [
+          Minesweeper.world[cell.row - 1][cell.col - 1],
+          Minesweeper.world[cell.row - 1][cell.col],
+          Minesweeper.world[cell.row - 1][cell.col + 1]
+        ]
+      } else {
+        cellsAbove = [];
+      }
+      // side cells
+      var cellsAside = [];
+      if (cell.col > 0){
+        cellsAside.push(Minesweeper.world[cell.row][cell.col - 1]);
+      }
+      if (cell.col < Minesweeper.world.length - 1) {
+        cellsAside.push(Minesweeper.world[cell.row][cell.col + 1]);
+      }
+      // cells below
+      if (cell.row < Minesweeper.world.length - 1){
+        var cellsBelow = [
+          Minesweeper.world[cell.row + 1][cell.col - 1],
+          Minesweeper.world[cell.row + 1][cell.col],
+          Minesweeper.world[cell.row + 1][cell.col + 1]
+        ]
+      } else {
+        cellsBelow = [];
+      }
+      // calc cells
+      var surroundingCells = _.union(cellsAbove, cellsAside, cellsBelow);
+      Minesweeper.surroundingCells = _.compact(surroundingCells);
+      surroundingCells = Minesweeper.surroundingCells;
 
-  // },
+      return surroundingCells;
+
+  },
+
+  calcZeros: function(cell, surroundingCells){
+    var zeroCount = 0;
+    var numSurrounding = surroundingCells.length;
+
+    _.each(surroundingCells, function(surroundingCell){
+      if (surroundingCell.surroundingMines === 0){
+        zeroCount += 1;
+        console.log(zeroCount);
+      }
+    });
+
+    zeroCount;
+
+    if (zeroCount === numSurrounding) {
+      cell.surroundedByZeros = true;
+    }
+  },
+
+  showZeros: function(clicked){
+    console.log('show zeros called')
+    var cell = clicked;
+    var surroundingCells = Minesweeper.getSurroundingCells(cell);
+
+    // checks for mines around the cell and increases the surrounding mine count
+    _.each(surroundingCells, function(surroundingCell){
+      Minesweeper.showNumber(surroundingCell);
+    });
+  },
 
   checkGuess: function(guess){
     var clicked = Minesweeper.world[guess.attributes.row.value][guess.attributes.col.value];
 
     if (clicked.mine){
-        var result = "You lose!"
-       Minesweeper.gameOver(result);
+      var result = "You lose!"
+      Minesweeper.gameOver(result);
     }else if (!clicked.selected && !clicked.flagged) {
       Minesweeper.showNumber(clicked);
       clicked.selected = true;
+      if(clicked.surroundedByZeros){
+        Minesweeper.showZeros(clicked);
+      }
     }
   },
 
