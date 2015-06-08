@@ -57,7 +57,7 @@ Minesweeper = {
         mine: false,
         flagged: false,
         surroundingMines: 0,
-        surroundedByZeros: false
+        surroundingRevealed: false
       }
     }
 
@@ -117,9 +117,6 @@ Minesweeper = {
           if (surroundingCell.mine){ cell.surroundingMines += 1 }
         });
 
-        // checks if the cell is surrounded by zeros
-        Minesweeper.calcZeros(cell, surroundingCells);
-
       })
     });
   },
@@ -162,33 +159,28 @@ Minesweeper = {
 
   },
 
-  calcZeros: function(cell, surroundingCells){
-    var zeroCount = 0;
-    var numSurrounding = surroundingCells.length;
+  revealSurroundingCells: function(clicked){
 
-    _.each(surroundingCells, function(surroundingCell){
-      if (surroundingCell.surroundingMines === 0){
-        zeroCount += 1;
-        console.log(zeroCount);
-      }
-    });
-
-    zeroCount;
-
-    if (zeroCount === numSurrounding) {
-      cell.surroundedByZeros = true;
-    }
-  },
-
-  showZeros: function(clicked){
-    console.log('show zeros called')
     var cell = clicked;
+
+    if(cell.surroundingRevealed) { return }
+
+    cell.surroundingRevealed = true;
+
     var surroundingCells = Minesweeper.getSurroundingCells(cell);
 
-    // checks for mines around the cell and increases the surrounding mine count
+    // shows surrounding mineCount (which is 0) for all surrounding cells
     _.each(surroundingCells, function(surroundingCell){
       Minesweeper.showNumber(surroundingCell);
+      surroundingCell.selected = true;
+
+      // if any of the surrounding cells are 0, reveal its surround cells
+      if (surroundingCell.surroundingMines === 0){
+        Minesweeper.revealSurroundingCells(surroundingCell);
+      }
+
     });
+
   },
 
   checkGuess: function(guess){
@@ -200,8 +192,9 @@ Minesweeper = {
     }else if (!clicked.selected && !clicked.flagged) {
       Minesweeper.showNumber(clicked);
       clicked.selected = true;
-      if(clicked.surroundedByZeros){
-        Minesweeper.showZeros(clicked);
+      if(clicked.surroundingMines === 0){
+        // reveal surroudning cells
+        Minesweeper.revealSurroundingCells(clicked);
       }
     }
   },
@@ -304,8 +297,5 @@ $(document).ready(function(){
   Minesweeper.renderForm();
   Minesweeper.initEvents();
 });
-
-// TO DO: make the zeros expand
-
 
 
